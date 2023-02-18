@@ -23,12 +23,13 @@ public class Percolation {
         if (n <= 0) {
             throw new IllegalArgumentException();
         }
-        this.uf = new WeightedQuickUnionUF(n);
         this.n = n;
-        this.top = 0;
-        this.bottom = this.size + 1;
+        this.size = n * n + 2;
 
-        this.size = n * n;
+        this.uf = new WeightedQuickUnionUF(this.size);
+        this.top = n * n;
+        this.bottom = n * n + 1;
+
         this.N = new int[this.size];
 
         /* Let's initialize the grid */
@@ -79,8 +80,7 @@ public class Percolation {
         }
 
         /* Left Neighbor */
-        this.isWithinBounds(row, col - 1);
-        if (col > 0 && this.isOpen(row, col - 1)) {
+        if (col > 1 && this.isOpen(row, col - 1)) {
             int leftNeighbor = this.getIndex(row, col - 1);
             this.uf.union(cell, leftNeighbor);
         }
