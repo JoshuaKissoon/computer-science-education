@@ -9,8 +9,6 @@ public class PercolationStats {
     private double[] thresholds;
     private int trials;
 
-    static final double CONFIDENCE_95 = 1.96;
-
     /**
      * perform independent trials on an n-by-n grid
      */
@@ -67,14 +65,14 @@ public class PercolationStats {
      * low endpoint of 95% confidence interval
      */
     public double confidenceLo() {
-        return this.mean() - (CONFIDENCE_95 * this.stddev() / Math.sqrt(this.trials));
+        return this.mean() - (1.96 * this.stddev() / Math.sqrt(this.trials));
     }
 
     /**
      * high endpoint of 95% confidence interval
      */
     public double confidenceHi() {
-        return this.mean() + (CONFIDENCE_95 * this.stddev() / Math.sqrt(this.trials));
+        return this.mean() + (1.96 * this.stddev() / Math.sqrt(this.trials));
     }
 
     /**

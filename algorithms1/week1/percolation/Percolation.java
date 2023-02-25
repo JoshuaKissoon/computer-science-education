@@ -62,7 +62,7 @@ public class Percolation {
         /* Virtual Top Cell */
         if (row == 1) {
             this.ufPerc.union(cell, this.top);
-            this.ufPerc.union(cell, this.top);
+            this.ufWithoutBackwash.union(cell, this.top);
         }
         /* Virtual Bottom Cell */
         if (row == this.n) {
@@ -135,7 +135,7 @@ public class Percolation {
 
     // test client (optional)
     public static void main(String[] args) {
-
+        
     }
 
     private int getIndex(int row, int col) {
