@@ -5,18 +5,18 @@ import edu.princeton.cs.algs4.WeightedQuickUnionUF;
  */
 public class Percolation {
 
-    private int size = 0;
-
     /**
      * An array to store open & closed sites
      * - -1: Closed
      * - 1: Open
      */
-    private int[] N;
+    private byte[] matrix;
     private int n;
     private WeightedQuickUnionUF uf;
+    // private WeightedQuickUnionUF ufWithoutBackwash;
     private int top; // Artificial cell at the top
     private int bottom; // Artificial cell at the bottom
+    private int openSites = 0;
 
     // creates n-by-n grid, with all sites initially blocked
     public Percolation(int n) {
@@ -24,17 +24,18 @@ public class Percolation {
             throw new IllegalArgumentException();
         }
         this.n = n;
-        this.size = n * n + 2;
+        int size = n * n;
 
-        this.uf = new WeightedQuickUnionUF(this.size);
+        this.uf = new WeightedQuickUnionUF(size + 2);
+        // this.ufWithoutBackwash = new WeightedQuickUnionUF(size + 2);
         this.top = n * n;
         this.bottom = n * n + 1;
 
-        this.N = new int[this.size];
+        this.matrix = new byte[size];
 
         /* Let's initialize the grid */
-        for (int i = 0; i < this.size; i++) {
-            this.N[i] = -1;
+        for (int i = 0; i < size; i++) {
+            this.matrix[i] = -1;
         }
     }
 
@@ -49,15 +50,21 @@ public class Percolation {
      */
     public void open(int row, int col) {
         this.isWithinBounds(row, col);
+        if(this.isOpen(row, col)) {
+            return;
+        }
+        
+        this.isWithinBounds(row, col);
         int cell = this.getIndex(row, col);
-        this.N[cell] = 1;
+        this.matrix[cell] = 1;
+        this.openSites++;
 
         /* Virtual Top Cell */
-        if(row == 1) {
+        if (row == 1) {
             this.uf.union(cell, this.top);
         }
         /* Virtual Bottom Cell */
-        if(row == this.n) {
+        if (row == this.n) {
             this.uf.union(cell, this.bottom);
         }
 
@@ -84,14 +91,13 @@ public class Percolation {
             int leftNeighbor = this.getIndex(row, col - 1);
             this.uf.union(cell, leftNeighbor);
         }
-
     }
 
     // is the site (row, col) open?
     public boolean isOpen(int row, int col) {
         this.isWithinBounds(row, col);
         int position = this.getIndex(row, col);
-        return this.N[position] != -1;
+        return this.matrix[position] != -1;
     }
 
     /**
@@ -103,30 +109,23 @@ public class Percolation {
      * Top row has positions <= n, so check if the value of this position is <= n
      */
     public boolean isFull(int row, int col) {
-        if(!this.isOpen(row, col)) {
+        this.isWithinBounds(row, col);
+        if (!this.isOpen(row, col)) {
             return false;
         }
         int position = this.getIndex(row, col);
 
-        return this.uf.connected(position, this.top);
+        return this.uf.find(this.top) == this.uf.find(position);
     }
 
     // returns the number of open sites
     public int numberOfOpenSites() {
-        int openSitesCount = 0;
-
-        for (int i = 0; i < this.size; i++) {
-            if (this.N[i] != -1) {
-                openSitesCount++;
-            }
-        }
-
-        return openSitesCount;
+        return this.openSites;
     }
 
     // does the system percolate?
     public boolean percolates() {
-        return this.uf.connected(this.top, this.bottom);
+        return this.uf.find(this.top) == this.uf.find(this.bottom);
     }
 
     // test client (optional)
