@@ -140,7 +140,7 @@ public class Percolation {
 
     private boolean isWithinBounds(int row, int col) {
         if (row < 1 || row > this.n || col < 1 || col > this.n) {
-            throw new IndexOutOfBoundsException();
+            throw new IllegalArgumentException();
         }
 
         return true;
