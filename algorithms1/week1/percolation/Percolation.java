@@ -12,8 +12,8 @@ public class Percolation {
      */
     private byte[] matrix;
     private int n;
-    private WeightedQuickUnionUF uf;
-    // private WeightedQuickUnionUF ufWithoutBackwash;
+    private WeightedQuickUnionUF ufPerc;
+    private WeightedQuickUnionUF ufWithoutBackwash;
     private int top; // Artificial cell at the top
     private int bottom; // Artificial cell at the bottom
     private int openSites = 0;
@@ -26,8 +26,8 @@ public class Percolation {
         this.n = n;
         int size = n * n;
 
-        this.uf = new WeightedQuickUnionUF(size + 2);
-        // this.ufWithoutBackwash = new WeightedQuickUnionUF(size + 2);
+        this.ufPerc = new WeightedQuickUnionUF(size + 2);
+        this.ufWithoutBackwash = new WeightedQuickUnionUF(size + 2);
         this.top = n * n;
         this.bottom = n * n + 1;
 
@@ -61,35 +61,40 @@ public class Percolation {
 
         /* Virtual Top Cell */
         if (row == 1) {
-            this.uf.union(cell, this.top);
+            this.ufPerc.union(cell, this.top);
+            this.ufPerc.union(cell, this.top);
         }
         /* Virtual Bottom Cell */
         if (row == this.n) {
-            this.uf.union(cell, this.bottom);
+            this.ufPerc.union(cell, this.bottom);
         }
 
         /* Top Neighbor */
         if (row > 1 && this.isOpen(row - 1, col)) {
             int topNeighbor = this.getIndex(row - 1, col);
-            this.uf.union(cell, topNeighbor);
+            this.ufPerc.union(cell, topNeighbor);
+            this.ufWithoutBackwash.union(cell, topNeighbor);
         }
 
         /* Bottom Neighbor */
         if (row < this.n && this.isOpen(row + 1, col)) {
             int bottomNeighbor = this.getIndex(row + 1, col);
-            this.uf.union(cell, bottomNeighbor);
+            this.ufPerc.union(cell, bottomNeighbor);
+            this.ufWithoutBackwash.union(cell, bottomNeighbor);
         }
 
         /* Right Neighbor */
         if (col < this.n && this.isOpen(row, col + 1)) {
             int rightNeighbor = this.getIndex(row, col + 1);
-            this.uf.union(cell, rightNeighbor);
+            this.ufPerc.union(cell, rightNeighbor);
+            this.ufWithoutBackwash.union(cell, rightNeighbor);
         }
 
         /* Left Neighbor */
         if (col > 1 && this.isOpen(row, col - 1)) {
             int leftNeighbor = this.getIndex(row, col - 1);
-            this.uf.union(cell, leftNeighbor);
+            this.ufPerc.union(cell, leftNeighbor);
+            this.ufWithoutBackwash.union(cell, leftNeighbor);
         }
     }
 
@@ -115,7 +120,7 @@ public class Percolation {
         }
         int position = this.getIndex(row, col);
 
-        return this.uf.find(this.top) == this.uf.find(position);
+        return this.ufWithoutBackwash.find(this.top) == this.ufWithoutBackwash.find(position);
     }
 
     // returns the number of open sites
@@ -125,7 +130,7 @@ public class Percolation {
 
     // does the system percolate?
     public boolean percolates() {
-        return this.uf.find(this.top) == this.uf.find(this.bottom);
+        return this.ufPerc.find(this.top) == this.ufPerc.find(this.bottom);
     }
 
     // test client (optional)
